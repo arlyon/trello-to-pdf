@@ -197,7 +197,16 @@
         if (file) {
             const reader = new FileReader();
             reader.onload = event => {
-                const parsed = eatData(JSON.parse(reader.result));
+                try {
+                    json = JSON.parse(reader.result)
+                } catch {
+                    return alert("Invalid JSON")
+                }
+                try {
+                    parsed = eatData(JSON.parse(reader.result));
+                } catch {
+                    return alert("Not a valid Trello File")
+                }
                 document.title = parsed.board;
                 showData(parsed);
             }
