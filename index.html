@@ -20,7 +20,7 @@
       }
       #drop-zone {
         z-index: 10; 
-        position: absolute; 
+        position: fixed; 
         width: 100vw; 
         height: 100vh; 
         background-color: #026aa7; 
@@ -29,7 +29,8 @@
         justify-content: center; 
         align-items: center;
         opacity: 0;
-        transition: opacity ease-in-out;
+        transition: opacity 0.1s;
+        transition-delay: 0.05s;
         pointer-events: none;
       }
       #drop-zone.visible {
@@ -86,10 +87,10 @@
   </head>
 
   <body>
+    <div id="drop-zone">
+        <h1>Drop!</h1>
+    </div>
     <div id="root">
-        <div id="drop-zone">
-            <h1>Drop!</h1>
-        </div>
       <h2 style="margin-bottom: 1em;">Trello to PDF</h2>
       <h6>Drop a JSON File Here:</h6>
       <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
