@@ -118,7 +118,10 @@
                       </div>
                       <ul class="comments">
                       {{#actions}}
-                          <li class=""><tt style="color:gray;">{{date}}</tt>{{{text}}}</li>
+                          <li class="">
+                            <tt style="color:gray;">{{date}} ({{author}})</tt>
+                            {{{text}}}
+                          </li>
                       {{/actions}}
                       </ul>
                   </div>
@@ -166,7 +169,9 @@
 
           data.ref[action.id] = {
             text: marked(action.data.text),
-            date: moment(action.date).format("YYYY-MM-DD")
+            date: moment(action.date).format("YYYY-MM-DD"),
+            author: action.memberCreator.fullName,
+            username: action.memberCreator.username,
           };
           try {
             data.ref[action.data.card.id].actions.unshift(data.ref[action.id]);
