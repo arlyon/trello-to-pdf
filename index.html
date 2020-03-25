@@ -24,106 +24,141 @@
       main {
         min-width: 100vw;
         min-height: 100vh;
+        margin: 0 auto;
+      }
+
+      div#upload {
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
         flex-direction: column;
-        padding: 1em;
       }
-      #drop-zone {
-        z-index: 10; 
-        position: fixed; 
-        width: 100vw; 
-        height: 100vh; 
-        background-color: #026aa7; 
-        color: white; 
-        display: flex; 
-        justify-content: center; 
+
+      div#drop-zone {
+        z-index: 10;
+        position: fixed;
+        width: 100vw;
+        height: 100vh;
+        background-color: #026aa7;
+        color: white;
+        display: flex;
+        justify-content: center;
         align-items: center;
         opacity: 0;
         transition: opacity 0.1s;
         transition-delay: 0.05s;
         pointer-events: none;
       }
-      #drop-zone.visible {
-          opacity: 1;
+
+      div#drop-zone.visible {
+        opacity: 1;
       }
 
       h1 {
+        margin-top: 1em;
         text-align: center;
       }
 
-      section {
-        max-width: 800px;
+      h3 {
+        margin: 0em 0 1.5em 0;
       }
 
-      .comments {
+      h6.divider {
+        margin-top: 2em;
+        text-align: center;
+        font-weight: 600;
+      }
+
+      blockquote {
+        margin-left: 1em;
+        padding-left: 1em;
+        border-left: 3px solid var(--gray) !important;
+        color: var(--gray);
+      }
+
+      time {
+        font-size: 0.8em;
+        color: var(--gray);
+      }
+
+      ul.comments {
         margin: 0;
-        padding-left: 1.5em;
+        padding: 0 1em;
         list-style: none;
       }
 
-      .comments > li {
+      ul.comments > li {
         padding-left: 1em;
         border-left: 3px solid black;
       }
 
-      div.selector {
-        margin: 2em;
+      section {
+        margin: 0 auto;
+        max-width: 800px;
+      }
+
+      section.selector {
+        padding: 2em 0;
+        width: max-content;
       }
     </style>
     <style type="text/css" media="print">
-      div.selector {
+      section.selector {
         display: none;
       }
-      section {
-        max-width: inherit;
+      blockquote {
+        border: 0;
       }
     </style>
   </head>
 
   <body>
     <div id="drop-zone">
-        <h1>Drop!</h1>
+      <h1>Drop!</h1>
     </div>
-      <h2 style="margin-bottom: 1em;">Trello to PDF</h2>
-      <h6>Drop a JSON File Here:</h6>
-      <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
-        <input type="file" class="custom-file-input" id="customFile" />
-        <label class="custom-file-label" for="customFile">Choose file</label>
     <main>
+      <div id="upload">
+        <h2 style="margin-bottom: 1em;">Trello to PDF</h2>
+        <h6>Drop a JSON File Here:</h6>
+        <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
+          <input type="file" class="custom-file-input" id="customFile" />
+          <label class="custom-file-label" for="customFile">Choose file</label>
+        </div>
+        <p style="color: var(--gray)"><small>(don't worry, we don't upload anything)</small></p>
       </div>
-      <p style="opacity: 0.4;"><small>(don't worry, we don't upload anything)</small></p>
     </main>
 
     <script type="text/html" id="template-output">
-      <div class="selector">
-          <h5>Display Lists</h5>
-          {{#lists}}
-      <input type="checkbox" title="{{name}}" checked="checked" onclick='(input => document.getElementById(`{{name}}`).hidden = !input.checked)(this)' />
-          {{/lists}}
-      </div>
+      <section class="selector">
+        <h5>Display Lists</h5>
+        {{#lists}}
+          <input type="checkbox" title="{{name}}" checked="checked" onclick='(input => document.getElementById(`{{name}}`).hidden = !input.checked)(this)' />
+        {{/lists}}
+      </section>
 
       {{#lists}}
-          <section id="{{name}}">
-              <h1>{{name}}</h1>
-              {{#cards}}
-                  <div class="">
-                      <div class="card-body">
-                          <h4 class="card-title">{{name}}</h5>
-                          {{{desc}}}
-                      </div>
-                      <ul class="comments">
-                      {{#actions}}
-                          <li class="">
-                            <tt style="color:gray;">{{date}} ({{author}})</tt>
-                            {{{text}}}
-                          </li>
-                      {{/actions}}
-                      </ul>
-                  </div>
-              {{/cards}}
-          </section>
+        <section id="{{name}}">
+          <h1>{{name}}</h1>
+          {{#cards}}
+            <div class="card-body">
+              <h3 class="card-title">{{name}}</h3>
+              {{#desc}}{{{desc}}}{{/desc}}
+              {{^desc}}<span style="color: var(--gray)">No Description</span>{{/desc}}
+              {{#actions.length}}
+              <h6 class="divider">COMMENTS</h6>
+              <ul class="comments">
+              {{#actions}}
+                  <li>
+                    <span style="font-weight:600">{{author}} </span><time datetime="{{date}}">{{date}}</time>
+                    {{{text}}}
+                  </li>
+              {{/actions}}
+              {{/actions.length}}
+              </ul>
+            </div>
+          {{/cards}}
+        </section>
       {{/lists}}
     </script>
     <script type="text/javascript">
@@ -163,12 +198,11 @@
           if (action.type != "commentCard") {
             continue;
           }
-
           data.ref[action.id] = {
             text: marked(action.data.text),
             date: action.date.split("T")[0],
             author: action.memberCreator.fullName,
-            username: action.memberCreator.username,
+            username: action.memberCreator.username
           };
           try {
             data.ref[action.data.card.id].actions.unshift(data.ref[action.id]);
@@ -178,53 +212,52 @@
         return data;
       }
 
-      const root = document.getElementsByTagName("main")[0];
-      const fileUpload = document.getElementById("customFile")
-      const dropZone = document.getElementById("drop-zone")
-
       function showData(data) {
         var template = document.getElementById("template-output").innerHTML;
         root.innerHTML = Mustache.render(template, data);
       }
 
-      const loadFile = (event) => {
+      const root = document.getElementsByTagName("main")[0];
+      const fileUpload = document.getElementById("customFile");
+      const dropZone = document.getElementById("drop-zone");
 
+      const loadFile = event => {
         let files;
-        if (event.type === 'change') {
-            files = fileUpload.files
-        } else if (event.type === 'drop') {
-            files =  event.dataTransfer.files
+        if (event.type === "change") {
+          files = fileUpload.files;
+        } else if (event.type === "drop") {
+          files = event.dataTransfer.files;
         }
 
         const file = files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onload = event => {
-                try {
-                    json = JSON.parse(reader.result)
-                } catch {
-                    return alert("Invalid JSON")
-                }
-                try {
-                    parsed = eatData(JSON.parse(reader.result));
-                } catch {
-                    return alert("Not a valid Trello File")
-                }
-                document.title = parsed.board;
-                showData(parsed);
+          const reader = new FileReader();
+          reader.onload = event => {
+            try {
+              json = JSON.parse(reader.result);
+            } catch {
+              return alert("Invalid JSON");
             }
-            reader.readAsText(file)
+            try {
+              parsed = eatData(JSON.parse(reader.result));
+            } catch {
+              return alert("Not a valid Trello File");
+            }
+            document.title = parsed.board;
+            showData(parsed);
+          };
+          reader.readAsText(file);
         }
 
-        dropZone.className = ""
-        event.preventDefault()
-      }
-      
-      root.ondrop = loadFile
+        dropZone.className = "";
+        event.preventDefault();
+      };
+
+      root.ondrop = loadFile;
       fileUpload.onchange = loadFile;
-      root.ondragover = (event) => event.preventDefault();
-      root.ondragenter = () => dropZone.className = "visible"
-      root.ondragexit = () => dropZone.className = ""
+      root.ondragover = event => event.preventDefault();
+      root.ondragenter = () => (dropZone.className = "visible");
+      root.ondragexit = () => (dropZone.className = "");
     </script>
   </body>
 </html>
