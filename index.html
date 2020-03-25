@@ -21,7 +21,7 @@
       type="text/javascript"
     ></script>
     <style>
-      #root {
+      main {
         min-width: 100vw;
         min-height: 100vh;
         display: flex;
@@ -86,15 +86,15 @@
     <div id="drop-zone">
         <h1>Drop!</h1>
     </div>
-    <div id="root">
       <h2 style="margin-bottom: 1em;">Trello to PDF</h2>
       <h6>Drop a JSON File Here:</h6>
       <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
         <input type="file" class="custom-file-input" id="customFile" />
         <label class="custom-file-label" for="customFile">Choose file</label>
+    <main>
       </div>
       <p style="opacity: 0.4;"><small>(don't worry, we don't upload anything)</small></p>
-    </div>
+    </main>
 
     <script type="text/html" id="template-output">
       <div class="selector">
@@ -178,10 +178,10 @@
         return data;
       }
 
-      const root = document.getElementById("root")
+      const root = document.getElementsByTagName("main")[0];
       const fileUpload = document.getElementById("customFile")
       const dropZone = document.getElementById("drop-zone")
-      
+
       function showData(data) {
         var template = document.getElementById("template-output").innerHTML;
         root.innerHTML = Mustache.render(template, data);
