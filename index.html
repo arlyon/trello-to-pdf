@@ -119,7 +119,7 @@
     </div>
     <main>
       <div id="upload">
-        <h2 style="margin-bottom: 1em;">Trello to PDF</h2>
+        <h2 style="margin-bottom: 1em">Trello to PDF</h2>
         <h6>Drop a JSON File Here:</h6>
         <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
           <input type="file" class="custom-file-input" id="customFile" />
@@ -141,40 +141,43 @@
       <section class="selector">
         <h5>Display Lists</h5>
         {{#lists}}
-          <input type="checkbox" title="{{name}}" checked="checked" onclick='(input => document.getElementById(`{{name}}`).hidden = !input.checked)(this)' />
+        <input
+          type="checkbox"
+          title="{{name}}"
+          checked="checked"
+          onclick="(input => document.getElementById(`{{name}}`).hidden = !input.checked)(this)"
+        />
         {{/lists}}
       </section>
 
       {{#lists}}
-        <section id="{{name}}">
-          <h1>{{name}}</h1>
-          {{#cards}}
-            <div class="card-body">
-              <h3 class="card-title">{{name}}</h3>
-              {{#desc}}{{{desc}}}{{/desc}}
-              {{^desc}}<span style="color: var(--gray)">No Description</span>{{/desc}}
-              {{#actions.length}}
-              <h6 class="divider">COMMENTS</h6>
-              <ul class="comments">
-              {{#actions}}
-                  <li>
-                    <span style="font-weight:600">{{author}} </span><time datetime="{{date}}">{{date}}</time>
-                    {{{text}}}
-                  </li>
-              {{/actions}}
-              {{/actions.length}}
-              </ul>
-            </div>
-          {{/cards}}
-        </section>
+      <section id="{{name}}">
+        <h1>{{name}}</h1>
+        {{#cards}}
+        <div class="card-body">
+          <h3 class="card-title">{{name}}</h3>
+          {{#desc}}{{{desc}}}{{/desc}} {{^desc}}<span style="color: var(--gray)">No Description</span>{{/desc}}
+          {{#actions.length}}
+          <h6 class="divider">COMMENTS</h6>
+          <ul class="comments">
+            {{#actions}}
+            <li>
+              <span style="font-weight:600">{{author}} </span><time datetime="{{date}}">{{date}}</time>
+              {{{text}}}
+            </li>
+            {{/actions}} {{/actions.length}}
+          </ul>
+        </div>
+        {{/cards}}
+      </section>
       {{/lists}}
     </script>
     <script type="text/javascript">
-      function eatData(trelloJson) {
+      const eatData = (trelloJson) => {
         const data = {
           board: trelloJson.name,
           lists: [],
-          ref: {}
+          ref: {},
         };
 
         for (list of trelloJson.lists) {
@@ -183,7 +186,7 @@
           }
           data.ref[list.id] = {
             name: list.name,
-            cards: []
+            cards: [],
           };
           data.lists.push(data.ref[list.id]);
         }
@@ -196,7 +199,7 @@
           data.ref[card.id] = {
             name: card.name,
             desc: marked(card.desc),
-            actions: []
+            actions: [],
           };
 
           data.ref[card.idList].cards.push(data.ref[card.id]);
@@ -210,7 +213,7 @@
             text: marked(action.data.text),
             date: action.date.split("T")[0],
             author: action.memberCreator.fullName,
-            username: action.memberCreator.username
+            username: action.memberCreator.username,
           };
           try {
             data.ref[action.data.card.id].actions.unshift(data.ref[action.id]);
@@ -218,18 +221,18 @@
         }
 
         return data;
-      }
+      };
 
-      function showData(data) {
+      const showData = (data) => {
         var template = document.getElementById("template-output").innerHTML;
         root.innerHTML = Mustache.render(template, data);
-      }
+      };
 
       const root = document.getElementsByTagName("main")[0];
       const fileUpload = document.getElementById("customFile");
       const dropZone = document.getElementById("drop-zone");
 
-      const loadFile = event => {
+      const loadFile = (event) => {
         let files;
         if (event.type === "change") {
           files = fileUpload.files;
@@ -240,7 +243,7 @@
         const file = files[0];
         if (file) {
           const reader = new FileReader();
-          reader.onload = event => {
+          reader.onload = (event) => {
             try {
               json = JSON.parse(reader.result);
             } catch {
@@ -263,7 +266,7 @@
 
       root.ondrop = loadFile;
       fileUpload.onchange = loadFile;
-      root.ondragover = event => event.preventDefault();
+      root.ondragover = (event) => event.preventDefault();
       root.ondragenter = () => (dropZone.className = "visible");
       root.ondragexit = () => (dropZone.className = "");
     </script>
