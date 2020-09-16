@@ -322,13 +322,11 @@
         const url = `https://trello.com/b/${id[1]}.json`;
 
         showMessage("Fetching...");
-        const response = await fetch(url);
-        if (response.status !== 200) {
-          showError("couldn't get board. is it public?");
-          hideMessage();
-          return;
-        }
         try {
+          const response = await fetch(url);
+          if (response.status !== 200) {
+            throw "couldn't get board. is it public?";
+          }
           const parsed = parseData(await response.text());
           showData(parsed);
         } catch (e) {
