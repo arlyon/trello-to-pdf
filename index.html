@@ -315,9 +315,8 @@
 
       const loadUrl = async (event) => {
         hideError();
-        console.log(event.data);
-        if (event.data === null) return;
-        const id = trelloUrl.exec(event.data);
+        if (event.target.value === "") return;
+        const id = trelloUrl.exec(event.target.value);
         if (id === null) return showError("couldn't parse the url");
 
         const url = `https://trello.com/b/${id[1]}.json`;
@@ -345,7 +344,6 @@
       };
 
       const hideError = () => {
-        console.log("HIDE");
         errorBox.className = "";
       };
 
