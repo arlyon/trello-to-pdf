@@ -55,6 +55,14 @@
         opacity: 1;
       }
 
+      p#error-box {
+        opacity: 0;
+      }
+
+      p#error-box.visible {
+        opacity: 1;
+      }
+
       h1 {
         margin-top: 1em;
         text-align: center;
@@ -102,6 +110,33 @@
         padding: 2em 0;
         width: max-content;
       }
+
+      input.form-control::placeholder {
+        color: rgb(79, 78, 87);
+        opacity: 1 !important;
+      }
+
+      div.seperator {
+        width: 400px;
+        margin: 2em 0;
+        color: #026aa7;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+      }
+
+      div.seperator > * {
+        margin: 0;
+      }
+
+      div.seperator::before,
+      div.seperator::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid #026aa7;
+        margin: 0 0.5em;
+      }
     </style>
     <style type="text/css" media="print">
       section.selector {
@@ -115,7 +150,7 @@
 
   <body>
     <div id="drop-zone">
-      <h1>Drop!</h1>
+      <h1></h1>
     </div>
     <main>
       <div id="upload">
@@ -126,11 +161,24 @@
           <label class="custom-file-label" for="customFile">Choose file</label>
         </div>
         <p style="color: var(--gray)"><small>(don't worry, we don't upload anything)</small></p>
+        <div class="seperator">
+          <h6>OR</h6>
+        </div>
+        <h6>Paste The Public URL</h6>
+        <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
+          <input type="url" class="form-control" id="url" placeholder="Public URL" />
+        </div>
+        <p style="color: var(--red)" id="error-box"><small>error</small></p>
         <p style="color: var(--gray); position: fixed; bottom: 1em">
           <small>
-            version 1.1.0
+            version 1.2.0
             <a href="https://github.com/arlyon/trello-to-pdf" style="color: inherit; text-decoration: underline"
               >source</a
+            >
+            <a
+              href="https://help.trello.com/article/747-exporting-data-from-trello-1"
+              style="color: inherit; text-decoration: underline"
+              >how-to</a
             >
           </small>
         </p>
@@ -224,13 +272,24 @@
       };
 
       const showData = (data) => {
-        var template = document.getElementById("template-output").innerHTML;
+        const template = document.getElementById("template-output").innerHTML;
         root.innerHTML = Mustache.render(template, data);
+        document.title = data.board;
       };
 
-      const root = document.getElementsByTagName("main")[0];
-      const fileUpload = document.getElementById("customFile");
-      const dropZone = document.getElementById("drop-zone");
+      const parseData = (data) => {
+        let json;
+        try {
+          json = JSON.parse(data);
+        } catch {
+          throw "Invalid JSON";
+        }
+        try {
+          return eatData(json);
+        } catch {
+          throw "Not a valid Trello File";
+        }
+      };
 
       const loadFile = (event) => {
         let files;
@@ -244,31 +303,76 @@
         if (file) {
           const reader = new FileReader();
           reader.onload = (event) => {
-            try {
-              json = JSON.parse(reader.result);
-            } catch {
-              return alert("Invalid JSON");
-            }
-            try {
-              parsed = eatData(JSON.parse(reader.result));
-            } catch {
-              return alert("Not a valid Trello File");
-            }
-            document.title = parsed.board;
+            const parsed = parseData(reader.result);
             showData(parsed);
           };
           reader.readAsText(file);
         }
 
-        dropZone.className = "";
+        messageBox.className = "";
         event.preventDefault();
       };
+
+      const loadUrl = async (event) => {
+        hideError();
+        console.log(event.data);
+        if (event.data === null) return;
+        const id = trelloUrl.exec(event.data);
+        if (id === null) return showError("couldn't parse the url");
+
+        const url = `https://trello.com/b/${id[1]}.json`;
+
+        showMessage("Fetching...");
+        const response = await fetch(url);
+        if (response.status !== 200) {
+          showError("couldn't get board. is it public?");
+          hideMessage();
+          return;
+        }
+        try {
+          const parsed = parseData(await response.text());
+          showData(parsed);
+        } catch (e) {
+          showError(e);
+        } finally {
+          hideMessage();
+        }
+      };
+
+      const showError = (message) => {
+        errorBox.className = "visible";
+        errorBox.children[0].textContent = message;
+      };
+
+      const hideError = () => {
+        console.log("HIDE");
+        errorBox.className = "";
+      };
+
+      const showMessage = (message) => {
+        messageBox.className = "visible";
+        messageBox.children[0].textContent = message;
+      };
+
+      const hideMessage = () => {
+        messageBox.className = "";
+      };
+
+      const trelloUrl = /trello\.com\/b\/(\w+)/;
+
+      const root = document.getElementsByTagName("main")[0];
+      const fileUpload = document.getElementById("customFile");
+      const messageBox = document.getElementById("drop-zone");
+      const errorBox = document.getElementById("error-box");
+
+      const urlPaste = document.getElementById("url");
 
       root.ondrop = loadFile;
       fileUpload.onchange = loadFile;
       root.ondragover = (event) => event.preventDefault();
-      root.ondragenter = () => (dropZone.className = "visible");
-      root.ondragexit = () => (dropZone.className = "");
+      root.ondragenter = () => showMessage("Drop!");
+      root.ondragexit = hideMessage;
+      urlPaste.oninput = loadUrl;
     </script>
   </body>
 </html>
