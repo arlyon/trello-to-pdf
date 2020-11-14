@@ -311,7 +311,7 @@
         }
       };
 
-      const loadFile = (event) => {
+      const handleFileEvent = (event) => {
         let files;
         if (event.type === "change") {
           files = fileUpload.files;
@@ -319,7 +319,11 @@
           files = event.dataTransfer.files;
         }
 
-        const file = files[0];
+        loadFile(files[0]);
+        event.preventDefault();
+      };
+
+      const loadFile = (file) => {
         if (file) {
           const reader = new FileReader();
           reader.onload = (event) => {
@@ -331,28 +335,35 @@
         }
 
         messageBox.className = "";
-        event.preventDefault();
       };
 
-      const loadUrl = async (event) => {
+      const handleUrlEvent = async (event) => {
         hideError();
         if (event.target.value === "") return;
         const id = trelloUrl.exec(event.target.value);
         if (id === null) return showError("couldn't parse the url");
-
-        const url = `https://trello.com/b/${id[1]}.json`;
-
-        showMessage("Fetching...");
         try {
-          const response = await fetch(url);
-          if (response.status !== 200) {
-            throw "couldn't get board. is it public?";
-          }
-          const data = loadData(await response.text());
-          showBoard(data);
+          const data = await loadBoardId(id[1]);
           history.pushState(data, data.name, `/b/${data.shortLink}`);
         } catch (e) {
           showError(e);
+        }
+      };
+
+      const loadBoardId = async (id) => {
+        const url = `https://trello.com/b/${id}.json`;
+        showMessage("Fetching...");
+
+        try {
+          const response = await fetch(url);
+          if (response.status !== 200) {
+            throw "";
+          }
+          const data = loadData(await response.text());
+          showBoard(data);
+          return data;
+        } catch {
+          throw `couldn't get board '${id}'. is it public?`;
         } finally {
           hideMessage();
         }
@@ -376,7 +387,7 @@
         messageBox.className = "";
       };
 
-      const trelloUrl = /trello\.com\/b\/(\w+)/;
+      const trelloUrl = /.*\/b\/(\w+)/;
       const template = document.getElementById("template-output").innerHTML;
 
       // handles to various elements
@@ -388,12 +399,12 @@
       const errorBox = document.getElementById("error-box");
       const urlPaste = document.getElementById("url");
 
-      root.ondrop = loadFile;
-      fileUpload.onchange = loadFile;
+      root.ondrop = handleFileEvent;
+      fileUpload.onchange = handleFileEvent;
       root.ondragover = (event) => event.preventDefault();
       root.ondragenter = () => showMessage("Drop!");
       root.ondragexit = hideMessage;
-      urlPaste.oninput = loadUrl;
+      urlPaste.oninput = handleUrlEvent;
 
       window.onpopstate = ({ state }) => {
         if (state == null) {
@@ -405,7 +416,17 @@
         }
       };
 
-      window.onpu;
+      window.onload = async () => {
+        const id = trelloUrl.exec(window.location.pathname);
+        if (id !== null) {
+          try {
+            const data = await loadBoardId(id[1]);
+            history.replaceState(data, data.name, `/b/${data.shortLink}`);
+          } catch (e) {
+            showError(e);
+          }
+        }
+      };
     </script>
   </body>
 </html>
