@@ -27,7 +27,7 @@
         margin: 0 auto;
       }
 
-      div#upload {
+      div#board-select {
         min-height: 100vh;
         display: flex;
         justify-content: center;
@@ -154,12 +154,13 @@
       <h1></h1>
     </div>
     <main>
-      <div id="upload">
+      <div id="board"></div>
+      <div id="board-select">
         <h2 style="margin-bottom: 1em">Trello to PDF</h2>
         <h6>Drop a JSON File Here:</h6>
         <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
-          <input type="file" class="custom-file-input" id="customFile" />
-          <label class="custom-file-label" for="customFile">Choose file</label>
+          <input type="file" class="custom-file-input" id="custom-file" />
+          <label class="custom-file-label" for="custom-file">Choose file</label>
         </div>
         <p style="color: var(--gray)">
           <small>(don't worry, we don't upload anything)</small>
@@ -233,9 +234,22 @@
       {{/lists}}
     </script>
     <script type="text/javascript">
-      const eatData = (trelloJson) => {
+      const showBoard = (data) => {
+        board.innerHTML = Mustache.render(template, data);
+        boardSelect.hidden = true;
+        document.title = data.name;
+      };
+
+      const hideBoard = () => {
+        board.innerHTML = null;
+        boardSelect.hidden = false;
+        document.title = "Trello to PDF";
+      };
+
+      const parseData = (trelloJson) => {
         const data = {
-          board: trelloJson.name,
+          name: trelloJson.name,
+          shortLink: trelloJson.shortLink,
           lists: [],
           ref: {},
         };
@@ -283,13 +297,7 @@
         return data;
       };
 
-      const showData = (data) => {
-        const template = document.getElementById("template-output").innerHTML;
-        root.innerHTML = Mustache.render(template, data);
-        document.title = data.board;
-      };
-
-      const parseData = (data) => {
+      const loadData = (data) => {
         let json;
         try {
           json = JSON.parse(data);
@@ -297,7 +305,7 @@
           throw "Invalid JSON";
         }
         try {
-          return eatData(json);
+          return parseData(json);
         } catch {
           throw "Not a valid Trello File";
         }
@@ -315,8 +323,9 @@
         if (file) {
           const reader = new FileReader();
           reader.onload = (event) => {
-            const parsed = parseData(reader.result);
-            showData(parsed);
+            const data = loadData(reader.result);
+            showBoard(data);
+            history.pushState(data, data.name, `/b/${data.shortLink}`);
           };
           reader.readAsText(file);
         }
@@ -339,8 +348,9 @@
           if (response.status !== 200) {
             throw "couldn't get board. is it public?";
           }
-          const parsed = parseData(await response.text());
-          showData(parsed);
+          const data = loadData(await response.text());
+          showBoard(data);
+          history.pushState(data, data.name, `/b/${data.shortLink}`);
         } catch (e) {
           showError(e);
         } finally {
@@ -367,12 +377,15 @@
       };
 
       const trelloUrl = /trello\.com\/b\/(\w+)/;
+      const template = document.getElementById("template-output").innerHTML;
 
+      // handles to various elements
       const root = document.getElementsByTagName("main")[0];
-      const fileUpload = document.getElementById("customFile");
+      const board = document.getElementById("board");
+      const boardSelect = document.getElementById("board-select");
+      const fileUpload = document.getElementById("custom-file");
       const messageBox = document.getElementById("drop-zone");
       const errorBox = document.getElementById("error-box");
-
       const urlPaste = document.getElementById("url");
 
       root.ondrop = loadFile;
@@ -381,6 +394,18 @@
       root.ondragenter = () => showMessage("Drop!");
       root.ondragexit = hideMessage;
       urlPaste.oninput = loadUrl;
+
+      window.onpopstate = ({ state }) => {
+        if (state == null) {
+          console.log("unload!");
+          hideBoard();
+        } else {
+          console.log("load!");
+          showBoard(state);
+        }
+      };
+
+      window.onpu;
     </script>
   </body>
 </html>
