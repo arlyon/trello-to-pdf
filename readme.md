@@ -18,3 +18,15 @@ settings from prettier.
 ```bash
 prettier --write .
 ```
+
+Running the app requires that you have an SPA-compatible
+server serving the files otherwise loading boards
+directly won't work. Luckily there is a handy docker container that you can use.
+
+```bash
+# optionally build
+docker build . -t arlyon/nginx-spa
+docker run -it -p 8080:80 -v $(pwd):/app arlyon/nginx-spa
+```
+
+Then you can open it up at `localhost:8080`.
