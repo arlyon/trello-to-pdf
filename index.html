@@ -142,6 +142,7 @@
       section.selector {
         display: none;
       }
+
       blockquote {
         border: 0;
       }
@@ -160,19 +161,28 @@
           <input type="file" class="custom-file-input" id="customFile" />
           <label class="custom-file-label" for="customFile">Choose file</label>
         </div>
-        <p style="color: var(--gray)"><small>(don't worry, we don't upload anything)</small></p>
+        <p style="color: var(--gray)">
+          <small>(don't worry, we don't upload anything)</small>
+        </p>
         <div class="seperator">
           <h6>OR</h6>
         </div>
         <h6>Paste The Public URL</h6>
         <div class="custom-file" style="max-width: 400px; margin: 0.5em 0">
-          <input type="url" class="form-control" id="url" placeholder="Public URL" />
+          <input
+            type="url"
+            class="form-control"
+            id="url"
+            placeholder="Public URL"
+          />
         </div>
         <p style="color: var(--red)" id="error-box"><small>error</small></p>
         <p style="color: var(--gray); position: fixed; bottom: 1em">
           <small>
             version 1.2.0
-            <a href="https://github.com/arlyon/trello-to-pdf" style="color: inherit; text-decoration: underline"
+            <a
+              href="https://github.com/arlyon/trello-to-pdf"
+              style="color: inherit; text-decoration: underline"
               >source</a
             >
             <a
@@ -204,13 +214,15 @@
         {{#cards}}
         <div class="card-body">
           <h3 class="card-title">{{name}}</h3>
-          {{#desc}}{{{desc}}}{{/desc}} {{^desc}}<span style="color: var(--gray)">No Description</span>{{/desc}}
-          {{#actions.length}}
+          {{#desc}}{{{desc}}}{{/desc}} {{^desc}}<span style="color: var(--gray)"
+            >No Description</span
+          >{{/desc}} {{#actions.length}}
           <h6 class="divider">COMMENTS</h6>
           <ul class="comments">
             {{#actions}}
             <li>
-              <span style="font-weight:600">{{author}} </span><time datetime="{{date}}">{{date}}</time>
+              <span style="font-weight:600">{{author}} </span
+              ><time datetime="{{date}}">{{date}}</time>
               {{{text}}}
             </li>
             {{/actions}} {{/actions.length}}
