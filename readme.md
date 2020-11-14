@@ -2,13 +2,17 @@
 
 Renders trello boards as easily-printable webpages.
 
-Forked from the [brilliant gist](https://gist.github.com/mathiasrw/8710615) by @mathiasrw.
+Forked from the [brilliant gist](https://gist.github.com/mathiasrw/8710615) by @mathiasrw. Hosted on netlify.
 
 ### Usage
 
-Export a board using the left panel [as per these instructions](https://help.trello.com/article/747-exporting-data-from-trello-1).
+Export a board using the right panel [as per these instructions](https://help.trello.com/article/747-exporting-data-from-trello-1).
 Then, drag the downloaded file into the UI away you go. You can choose to exclude
 lists using the check boxes at the top. They are not included in the final output.
+
+For public boards you can paste the URL into the box and it will load the json automatically.
+
+Alternatively, you can click <a href="javascript:(function(){var loc=location.href;loc=loc.replace('trello.com','trello.arlyon.dev'); window.location.assign(loc)})()">this bookmarklet</a> (drag it to your bookmarks bar!) on any public trello page to instantly get the document for it.
 
 ### Development
 
