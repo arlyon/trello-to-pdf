@@ -34,3 +34,7 @@ docker run -it -p 8080:80 -v $(pwd):/app arlyon/nginx-spa
 ```
 
 Then you can open it up at `localhost:8080`.
+
+### Analytics
+
+I am personally interested in how many people are using this site, and have decided to add plausible.io, a privacy-respecting analytics service, so that I know when it is down and where traffic comes from. Your data is not used for advertising, and no identifiable information is kept, which is why we can still deliver a cookieless experience. If you have any problems with this, please open an issue.
