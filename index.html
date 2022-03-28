@@ -111,6 +111,10 @@
         padding: 2em 0;
         width: max-content;
       }
+      
+      section.selector > h5 {
+        text-align: center;
+      }
 
       input.form-control::placeholder {
         color: rgb(79, 78, 87);
@@ -199,7 +203,7 @@
 
     <script type="text/html" id="template-output">
       <section class="selector">
-        <h5>Display Lists</h5>
+        <h5 style="text-align:center">Display Lists</h5>
         {{#lists}}
         <input
           type="checkbox"
